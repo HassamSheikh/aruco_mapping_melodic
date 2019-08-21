@@ -31,8 +31,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* Author: Jan Bacik */
 
-#ifndef ARUCO_TRACKING_H
-#define ARUCO_TRACKING_H
+#ifndef ARUCO_MAPPING_H
+#define ARUCO_MAPPING_H
 
 // Standard ROS libraries
 #include <ros/ros.h>
@@ -57,14 +57,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <opencv2/highgui/highgui.hpp>
 
 // Custom message
-#include <aruco_tracking/ArucoMarker.h>
+#include <aruco_mapping/ArucoMarker.h>
 
 /** \brief Aruco mapping namespace */
-namespace aruco_tracking
+namespace aruco_mapping
 {
 
 /** \brief Client class for Aruco mapping */
-class ArucoTracking
+class ArucoMapping
 {
 public:
 
@@ -86,9 +86,9 @@ public:
 public:
 
   /** \brief Construct a client for EZN64 USB control*/
-  ArucoTracking(ros::NodeHandle *nh);
+  ArucoMapping(ros::NodeHandle *nh);
 
-  ~ArucoTracking();
+  ~ArucoMapping();
 
   /** \brief Callback function to handle image processing*/
   void imageCallback(const sensor_msgs::ImageConstPtr &original_image);
@@ -116,8 +116,8 @@ private:
   tf::Transform arucoMarker2Tf(const aruco::Marker &marker);
 
   /** \brief Process actual image, detect markers and compute poses */
-  bool processImage(cv::Mat input_image,cv::Mat output_image);
   int isDetected(int marker_id);
+  bool processImage(cv::Mat input_image,cv::Mat output_image);
   void detectFirstMarker(std::vector<aruco::Marker> &real_time_markers);
   void markVisible(std::vector<aruco::Marker> &real_time_markers);
   void setCurrentCameraPose(aruco::Marker &real_time_marker, int index, bool inverse);
@@ -176,7 +176,7 @@ private:
 
    static constexpr double THIS_IS_FIRST_MARKER = -2;
 
-}; //ArucoTracking class
+}; //ArucoMapping class
 }  //aruco_mapping namespace
 
 #endif //ARUCO_MAPPING_H

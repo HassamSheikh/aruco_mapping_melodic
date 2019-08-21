@@ -31,15 +31,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* Author: Jan Bacik */
 
-#ifndef ARUCO_TRACKING_CPP
-#define ARUCO_TRACKING_CPP
+#ifndef ARUCO_MAPPING_CPP
+#define ARUCO_MAPPING_CPP
 
-#include <aruco_tracking.h>
+#include <aruco_mapping.h>
 
-namespace aruco_tracking
+namespace aruco_mapping
 {
 
-ArucoTracking::ArucoTracking(ros::NodeHandle *nh) :
+ArucoMapping::ArucoMapping(ros::NodeHandle *nh) :
   listener_ (new tf::TransformListener),  // Initialize TF Listener
   num_of_markers_ (10),                   // Number of used markers
   marker_size_(0.1),                      // Marker size in m
@@ -55,15 +55,15 @@ ArucoTracking::ArucoTracking(ros::NodeHandle *nh) :
   double temp_marker_size;
 
   //Parse params from launch file
-  nh->getParam("/aruco_tracking/calibration_file", calib_filename_);
-  nh->getParam("/aruco_tracking/marker_size", temp_marker_size);
-  nh->getParam("/aruco_tracking/num_of_markers", num_of_markers_);
-  nh->getParam("/aruco_tracking/space_type",space_type_);
-  nh->getParam("/aruco_tracking/roi_allowed",roi_allowed_);
-  nh->getParam("/aruco_tracking/roi_x",roi_x_);
-  nh->getParam("/aruco_tracking/roi_y",roi_y_);
-  nh->getParam("/aruco_tracking/roi_w",roi_w_);
-  nh->getParam("/aruco_tracking/roi_h",roi_h_);
+  nh->getParam("/aruco_mapping/calibration_file", calib_filename_);
+  nh->getParam("/aruco_mapping/marker_size", temp_marker_size);
+  nh->getParam("/aruco_mapping/num_of_markers", num_of_markers_);
+  nh->getParam("/aruco_mapping/space_type",space_type_);
+  nh->getParam("/aruco_mapping/roi_allowed",roi_allowed_);
+  nh->getParam("/aruco_mapping/roi_x",roi_x_);
+  nh->getParam("/aruco_mapping/roi_y",roi_y_);
+  nh->getParam("/aruco_mapping/roi_w",roi_w_);
+  nh->getParam("/aruco_mapping/roi_h",roi_h_);
 
   // Double to float conversion
   marker_size_ = float(temp_marker_size);
@@ -84,7 +84,7 @@ ArucoTracking::ArucoTracking(ros::NodeHandle *nh) :
   }
 
   //ROS publishers
-  marker_msg_pub_           = nh->advertise<aruco_tracking::ArucoMarker>("aruco_poses",1);
+  marker_msg_pub_           = nh->advertise<aruco_mapping::ArucoMarker>("aruco_poses",1);
   marker_visualization_pub_ = nh->advertise<visualization_msgs::Marker>("aruco_markers",1);
 
   //Parse data from calibration file
@@ -105,13 +105,13 @@ ArucoTracking::ArucoTracking(ros::NodeHandle *nh) :
   }
 }
 
-ArucoTracking::~ArucoTracking()
+ArucoMapping::~ArucoMapping()
 {
  delete listener_;
 }
 
 bool
-ArucoTracking::parseCalibrationFile(std::string calib_filename)
+ArucoMapping::parseCalibrationFile(std::string calib_filename)
 {
   sensor_msgs::CameraInfo camera_calibration_data;
   std::string camera_name = "camera";
@@ -156,7 +156,7 @@ ArucoTracking::parseCalibrationFile(std::string calib_filename)
 }
 
 void
-ArucoTracking::imageCallback(const sensor_msgs::ImageConstPtr &original_image)
+ArucoMapping::imageCallback(const sensor_msgs::ImageConstPtr &original_image)
 {
   //Create cv_brigde instance
   cv_bridge::CvImagePtr cv_ptr;
@@ -187,7 +187,7 @@ ArucoTracking::imageCallback(const sensor_msgs::ImageConstPtr &original_image)
 
 
 bool
-ArucoTracking::processImage(cv::Mat input_image,cv::Mat output_image)
+ArucoMapping::processImage(cv::Mat input_image,cv::Mat output_image)
 {
   aruco::MarkerDetector Detector;
   std::vector<aruco::Marker> real_time_markers;
@@ -339,7 +339,7 @@ ArucoTracking::processImage(cv::Mat input_image,cv::Mat output_image)
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////
 void
-ArucoTracking::knownMarkerInImage(bool &any_known_marker_visible, int &last_marker_id, int index)
+ArucoMapping::knownMarkerInImage(bool &any_known_marker_visible, int &last_marker_id, int index)
 {
   for(int k = 0; k < index; k++)
   {
@@ -353,7 +353,7 @@ ArucoTracking::knownMarkerInImage(bool &any_known_marker_visible, int &last_mark
 }
 //////////////////////////////////////////////////////////////////////////
 void
-ArucoTracking::publishCameraMarkerTransforms(int index, int last_marker_id)
+ArucoMapping::publishCameraMarkerTransforms(int index, int last_marker_id)
 {
   // Naming - TFs
   std::stringstream camera_tf_id;
@@ -398,7 +398,7 @@ ArucoTracking::publishCameraMarkerTransforms(int index, int last_marker_id)
 
 
 void
-ArucoTracking::computeGlobalMarkerPose(int index)
+ArucoMapping::computeGlobalMarkerPose(int index)
 {
   if((global_marker_counter_previous_ < global_marker_counter_) && (first_marker_detected_ == true))
   {
@@ -436,7 +436,7 @@ ArucoTracking::computeGlobalMarkerPose(int index)
 }
 ///////////////////////////////////////////////////////////////////////////////
 void
-ArucoTracking::computeGlobalCameraPose(bool any_markers_visible)
+ArucoMapping::computeGlobalCameraPose(bool any_markers_visible)
 {
   if((first_marker_detected_ == true) && (any_markers_visible == true))
   {
@@ -472,7 +472,7 @@ ArucoTracking::computeGlobalCameraPose(bool any_markers_visible)
 
 
 void
-ArucoTracking::nearestMarkersToCamera(bool &any_markers_visible, int &num_of_visible_markers)
+ArucoMapping::nearestMarkersToCamera(bool &any_markers_visible, int &num_of_visible_markers)
 {
   if(first_marker_detected_ == true)
   {
@@ -502,9 +502,9 @@ ArucoTracking::nearestMarkersToCamera(bool &any_markers_visible, int &num_of_vis
 }
 
 void
-ArucoTracking::publishCustomMarker(bool any_markers_visible, int num_of_visible_markers)
+ArucoMapping::publishCustomMarker(bool any_markers_visible, int num_of_visible_markers)
 {
-  aruco_tracking::ArucoMarker marker_msg;
+  aruco_mapping::ArucoMarker marker_msg;
   if((any_markers_visible == true))
   {
     marker_msg.header.stamp = ros::Time::now();
@@ -538,7 +538,7 @@ ArucoTracking::publishCustomMarker(bool any_markers_visible, int num_of_visible_
 }
 
 void
-ArucoTracking::detectFirstMarker(std::vector<aruco::Marker> &real_time_markers)
+ArucoMapping::detectFirstMarker(std::vector<aruco::Marker> &real_time_markers)
 {
   lowest_marker_id_ = real_time_markers[0].id;
   for(size_t i = 0; i < real_time_markers.size();i++)
@@ -603,7 +603,7 @@ ArucoTracking::detectFirstMarker(std::vector<aruco::Marker> &real_time_markers)
 
 
 void
-ArucoTracking::setCurrentCameraPose(aruco::Marker &real_time_marker, int index, bool inverse)
+ArucoMapping::setCurrentCameraPose(aruco::Marker &real_time_marker, int index, bool inverse)
 {
   if (first_marker_detected_ == true)
   {
@@ -613,7 +613,7 @@ ArucoTracking::setCurrentCameraPose(aruco::Marker &real_time_marker, int index, 
 }
 /////////////////////////////////////////////
 void
-ArucoTracking::setCameraPose(int index, bool inverse)
+ArucoMapping::setCameraPose(int index, bool inverse)
 {
   // Invert and position of marker to compute camera pose above it
   if(inverse)
@@ -633,7 +633,7 @@ ArucoTracking::setCameraPose(int index, bool inverse)
 }
 
 void
-ArucoTracking::markVisible(std::vector<aruco::Marker> &real_time_markers)
+ArucoMapping::markVisible(std::vector<aruco::Marker> &real_time_markers)
 {
   //This function marks the previously detected markers visible i.e, whether already detected markers
   // are in the current image or not.
@@ -649,7 +649,7 @@ ArucoTracking::markVisible(std::vector<aruco::Marker> &real_time_markers)
 //////////////////////////////////////////////////////////////
 
 int
-ArucoTracking::isDetected(int marker_id)
+ArucoMapping::isDetected(int marker_id)
 {
   int index = -1;
   int temp_counter = 0;
@@ -667,7 +667,7 @@ ArucoTracking::isDetected(int marker_id)
 //////////////////////////////////////////////
 
 void
-ArucoTracking::publishTfs(bool world_option)
+ArucoMapping::publishTfs(bool world_option)
 {
   for(int i = 0; i < global_marker_counter_; i++)
   {
@@ -707,7 +707,7 @@ ArucoTracking::publishTfs(bool world_option)
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 void
-ArucoTracking::publishMarker(geometry_msgs::Pose marker_pose, int marker_id, int index)
+ArucoMapping::publishMarker(geometry_msgs::Pose marker_pose, int marker_id, int index)
 {
   visualization_msgs::Marker vis_marker;
 
@@ -744,7 +744,7 @@ ArucoTracking::publishMarker(geometry_msgs::Pose marker_pose, int marker_id, int
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 tf::Transform
-ArucoTracking::arucoMarker2Tf(const aruco::Marker &marker)
+ArucoMapping::arucoMarker2Tf(const aruco::Marker &marker)
 {
   cv::Mat marker_rotation(3,3, CV_32FC1);
   cv::Rodrigues(marker.Rvec, marker_rotation);
